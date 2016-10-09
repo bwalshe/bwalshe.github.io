@@ -11,6 +11,7 @@
        var height = 900;
        var xorig = 200;
        var yorig = 100;
+
        var svgSelection = d3.select("svg")
          .attr("width", width)
          .attr("height", height);
@@ -22,17 +23,42 @@
        var signals = d3.text("signals.csv",function(lines){
           var parsedLines = d3.csvParseRows(lines);
           var yStepSize = (height-2*yorig)/parsedLines.length;
-          var xStepSize = (width-2*xorig)/parsedLines[0].length;
-          svgSelection.selectAll("polyline")
+          var xStepSize = (width-2*xorig)/(parsedLines[0].length-1);
+          svgSelection.selectAll("g")
              .data(parsedLines)
              .enter()
-             .append("svg:polyline")
-             .attr("points",function(d,lineNo){
-                return d.map(function(x,i){return (i*xStepSize+xorig)+","+(yorig-(x*100-yStepSize*lineNo))}).join(" ")
-             })
+             .append("svg:g")
              .attr("fill","black")
+             .attr("transform",function(d,i){return "translate("+xorig+","+(yorig+i*yStepSize)+") scale(1,-1)"})//+yStepSize+")"})
+
+         
+
+          svgSelection.selectAll("g")
+             .append("svg:rect")
+             .attr("width",width-2*xorig)
+             .attr("height",yStepSize)
+             .attr("y",-yStepSize+1)
+             .attr("stroke","none")
+
+          svgSelection.selectAll("g")
+             .append("polyline")
+             .attr("points",function(d,lineNo){
+                return d.map(function(y,i){return i*xStepSize+","+y*10*yStepSize}).join(" ")
+                })
              .attr("stroke","white")
              .attr("stroke-width","2");
+         
+          svgSelection.selectAll("g")
+             .on("mouseover",function(d){
+                d3.select(this).transition()
+                .duration(50)
+                .style("fill","grey")
+                })
+             .on("mouseout",function(d){
+                d3.select(this).transition()
+                .duration(300)
+                .style("fill","black")
+                });
           
        })
       
@@ -40,3 +66,4 @@
     <p>Radio, live transmission...</p>
   </body>
 </html>
+
