@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="d3.min.js"></script>
+   
+  </head>
+  <body>
+     <svg id="svg"></svg>
+     <script type="text/javascript">
+       var width = 1000;
+       var height = 900;
+       var xorig = 200;
+       var yorig = 100;
+       var svgSelection = d3.select("svg")
+         .attr("width", width)
+         .attr("height", height);
+       var backgroundRect = svgSelection.append("rect")
+         .attr("width", width)
+         .attr("height", height)
+         .attr("fill","black");
+
+       var signals = d3.text("signals.csv",function(lines){
+          var parsedLines = d3.csvParseRows(lines);
+          var yStepSize = (height-2*yorig)/parsedLines.length;
+          var xStepSize = (width-2*xorig)/parsedLines[0].length;
+          svgSelection.selectAll("polyline")
+             .data(parsedLines)
+             .enter()
+             .append("svg:polyline")
+             .attr("points",function(d,lineNo){
+                return d.map(function(x,i){return (i*xStepSize+xorig)+","+(yorig-(x*100-yStepSize*lineNo))}).join(" ")
+             })
+             .attr("fill","black")
+             .attr("stroke","white")
+             .attr("stroke-width","2");
+          
+       })
+      
+    </script>
+    <p>Radio, live transmission...</p>
+  </body>
+</html>
